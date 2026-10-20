@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum GameType {
+  TIC_TAC_TOE
+  CHESS
+}
+
+enum MatchResult {
+  WIN
+  LOSS
+  DRAW
+}
+
+model User {
+  id           String      @id @default(cuid())
+  name         String
+  email        String      @unique
+  passwordHash String
+  role         Role        @default(USER)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  accounts     Account[]
+  sessions     Session[]
+  matches      GameMatch[]
+  books        Book[]
+}
+
+/// Reserved for the Auth.js adapter. Credentials sign-in uses a JWT and does not write this table.
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+/// Reserved for database sessions. This app keeps the session in a signed JWT.
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model GameMatch {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game      GameType
+  result    MatchResult
+  opponent  String
+  moves     Int
+  createdAt DateTime    @default(now())
+
+  @@index([userId, createdAt])
+  @@index([game])
+  @@index([createdAt])
+}
+
+model Book {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  author    String
+  pages     Int
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, createdAt])
+}

@@ -1,69 +1,136 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Suspense } from "react";
+import { ChessGame } from "@/components/games/chess-game";
+import { DeviceProgress } from "@/components/islands";
+import { StatGrid } from "@/components/stats/stat-grid";
+import { developer } from "@/content/developer";
+import { getCurrentAccount } from "@/lib/data/account";
+import { userSummary } from "@/lib/data/queries";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <>
+      <section className="hero">
+        <div>
+          <p className="kicker">01 — Arena</p>
+          <h1 className="hero-title">
+            <span>Think.</span>
+            <span>Play.</span>
+            <span>Dominate.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="lede">
+            A new playground for strategic minds. Challenge yourself, sharpen your skills, and make every move count.
           </p>
+          <div className="hero-actions">
+            <Link className="btn btn-primary" href="/games/chess">
+              Open the board
+            </Link>
+            <Link className="btn btn-line" href="/games/tic-tac-toe">
+              Play tic tac toe
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <ChessGame variant="preview" />
+      </section>
+
+      <section className="catalog" aria-label="Featured games">
+        <Link href="/games/chess">
+          <span className="idx">01</span>
+          <div>
+            <h2>Chess</h2>
+            <p>A local board. Legal moves, check, castling, promotion, and en passant. No engine and no online opponent.</p>
+          </div>
+          <span className="go btn btn-line">Play</span>
+        </Link>
+        <Link href="/games/tic-tac-toe">
+          <span className="idx">02</span>
+          <div>
+            <h2>Tic Tac Toe</h2>
+            <p>Pass-and-play, or sit across from a minimax opponent that does not miss a forced win.</p>
+          </div>
+          <span className="go btn btn-line">Play</span>
+        </Link>
+        <Link href="/library">
+          <span className="idx">03</span>
+          <div>
+            <h2>Library</h2>
+            <p>A private shelf. Guests keep it on this device. An account keeps it in PostgreSQL.</p>
+          </div>
+          <span className="go btn btn-line">Open</span>
+        </Link>
+      </section>
+
+      <Suspense fallback={<p className="section-gap quiet">Reading the record…</p>}>
+        <HomeProgress />
+      </Suspense>
+
+      <section className="steps" aria-label="How BGames works">
+        <article>
+          <p className="kicker">01</p>
+          <h2>Choose a table</h2>
+          <p className="quiet">Chess for a full ruleset. Tic tac toe for a short duel. The library for everything you are reading.</p>
+        </article>
+        <article>
+          <p className="kicker">02</p>
+          <h2>Play the position</h2>
+          <p className="quiet">Moves are checked before they land. Hard tic tac toe searches the tree. Chess never invents a rule.</p>
+        </article>
+        <article>
+          <p className="kicker">03</p>
+          <h2>Keep the record</h2>
+          <p className="quiet">Guests store results on this device. Signed-in players write matches and books to their own account.</p>
+        </article>
+      </section>
+
+      <section className="section-gap developer-grid">
+        <div>
+          <p className="kicker">Builder</p>
+          <h2>{developer.name}</h2>
+          <p className="lede">{developer.summary}</p>
+          <Link className="btn btn-line" href="/about" style={{ marginTop: "1rem" }}>
+            Project notes
+          </Link>
         </div>
-      </main>
-    </div>
+        <p className="quiet">
+          BGames is a student project with a production shape: accounts, a database, and games whose rules you can test.
+        </p>
+      </section>
+    </>
+  );
+}
+
+async function HomeProgress() {
+  let account = null;
+  let databaseDown = false;
+  try {
+    account = await getCurrentAccount();
+  } catch {
+    databaseDown = true;
+  }
+  if (databaseDown || !account) {
+    return (
+      <DeviceProgress
+        note={databaseDown ? "Account stats need PostgreSQL. This device can still keep a local record." : undefined}
+      />
+    );
+  }
+
+  let summary = null;
+  try {
+    summary = await userSummary(account.id);
+  } catch {
+    return <DeviceProgress note="Account stats need PostgreSQL. This device can still keep a local record." />;
+  }
+
+  return (
+    <section className="section-gap" aria-label="Your record">
+      <p className="kicker">Record</p>
+      <h2>Your account</h2>
+      {summary.games === 0 ? (
+        <p className="quiet">No saved matches yet. Finish a game while you are signed in and the count starts here.</p>
+      ) : (
+        <StatGrid summary={summary} />
+      )}
+    </section>
   );
 }
